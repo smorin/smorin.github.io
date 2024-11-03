@@ -9,6 +9,20 @@
             padding: 20px;
             background: #f5f5f5;
         }
+        .page-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .page-header h1 {
+            font-size: 24px;
+            margin: 0;
+            padding: 0;
+        }
+        .page-header p {
+            color: #666;
+            margin: 5px 0 0 0;
+        }
         .container {
             display: flex;
             gap: 20px;
@@ -49,9 +63,27 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
         button:hover {
             background: #0052a3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button:active {
+            background: #004080;
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+        .button-clicked {
+            animation: pulse 0.5s;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.98); }
+            100% { transform: scale(1); }
         }
         .preview ul, .preview ol {
             padding-left: 20px;
@@ -62,6 +94,10 @@
     </style>
 </head>
 <body>
+    <div class="page-header">
+        <h1>Markdown to Rich Text Converter</h1>
+        <p>Convert your markdown to rich text and copy directly to Google Docs</p>
+    </div>
     <div class="container">
         <div class="pane">
             <h3>Markdown Input</h3>
@@ -87,7 +123,7 @@
         <div class="pane">
             <h3>Rich Text Preview</h3>
             <div id="preview" class="preview"></div>
-            <button onclick="convertAndCopy()">Convert & Copy to Clipboard</button>
+            <button id="copyButton" onclick="convertAndCopy()">Convert & Copy to Clipboard</button>
         </div>
     </div>
 
@@ -102,8 +138,8 @@
         function cleanHtml(html) {
             // Create a new container without any background styles
             const wrapper = document.createElement('div');
-            wrapper.style.color = 'black'; // Ensure text is black
-            wrapper.style.font = 'inherit'; // Use default font
+            wrapper.style.color = 'black';
+            wrapper.style.font = 'inherit';
             
             // Create the actual content div
             const content = document.createElement('div');
@@ -117,13 +153,10 @@
                     element.style.backgroundColor = 'transparent';
                     element.style.color = 'black';
                 }
-                // Remove any classes that might add backgrounds
                 element.className = '';
             }
             
             wrapper.appendChild(content);
-            
-            // Return clean HTML without any wrapper divs that might include background
             return content.innerHTML;
         }
 
@@ -139,6 +172,15 @@
 
         // Update preview on input
         document.getElementById('markdown').addEventListener('input', updatePreview);
+
+        // Function to handle button animation
+        function animateButton() {
+            const button = document.getElementById('copyButton');
+            button.classList.add('button-clicked');
+            setTimeout(() => {
+                button.classList.remove('button-clicked');
+            }, 500);
+        }
 
         // Function to convert and copy to clipboard
         async function convertAndCopy() {
@@ -159,6 +201,7 @@
                         'text/plain': new Blob([document.createElement('div').innerHTML = html].innerText, { type: 'text/plain' })
                     })
                 ]);
+                animateButton();
                 alert('Rich text copied to clipboard! You can now paste it in Google Docs.');
             } catch (err) {
                 // Fallback for older browsers
@@ -176,6 +219,7 @@
                 
                 try {
                     document.execCommand('copy');
+                    animateButton();
                     alert('Rich text copied to clipboard! You can now paste it in Google Docs.');
                 } catch (err) {
                     alert('Failed to copy to clipboard. Your browser may not support this feature.');
