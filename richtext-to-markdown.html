@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.2/turndown.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .page-header h1 {
+            font-size: 24px;
+            margin: 0;
+            padding: 0;
+        }
+        .page-header p {
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .pane {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-area {
+            width: 100%;
+            height: 400px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            overflow-y: auto;
+        }
+        #markdown-output {
+            width: 100%;
+            height: 400px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+            white-space: pre-wrap;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            background: #0052a3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button:active {
+            background: #004080;
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+        .button-clicked {
+            animation: pulse 0.5s;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.98); }
+            100% { transform: scale(1); }
+        }
+        [contenteditable=true]:empty:before {
+            content: attr(placeholder);
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>Rich Text to Markdown Converter</h1>
+        <p>Paste rich text from Google Docs and convert it to markdown</p>
+    </div>
+    <div class="container">
+        <div class="pane">
+            <h3>Rich Text Input</h3>
+            <div id="rich-text-input" 
+                 class="input-area" 
+                 contenteditable="true" 
+                 placeholder="Paste your rich text here..."></div>
+            <button onclick="clearInput()">Clear Input</button>
+        </div>
+        <div class="pane">
+            <h3>Markdown Output</h3>
+            <textarea id="markdown-output" readonly></textarea>
+            <button id="copyButton" onclick="copyMarkdown()">Copy Markdown</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize TurndownService with custom rules
+        const turndownService = new TurndownService({
+            headingStyle: 'atx',
+            codeBlockStyle: 'fenced',
+            bulletListMarker: '*',
+            listIndent: '  '
+        });
+
+        // Enhance list handling
+        turndownService.addRule('listItems', {
+            filter: 'li',
+            replacement: function (content, node) {
+                content = content
+                    .replace(/^\n+/, '') // remove leading newlines
+                    .replace(/\n+$/, '\n') // replace trailing newlines with just a single one
+                    .replace(/\n/gm, '\n  '); // indent new lines
+
+                let parent = node.parentElement;
+                let isOrdered = parent && parent.tagName === 'OL';
+                let indent = '';
+                let listParent = parent;
+                
+                // Calculate indentation level
+                while (listParent && (listParent.tagName === 'UL' || listParent.tagName === 'OL')) {
+                    indent += '  ';
+                    listParent = listParent.parentElement && 
+                                (listParent.parentElement.closest('ul') || listParent.parentElement.closest('ol'));
+                }
+
+                let prefix = isOrdered ? 
+                    `${indent}1. ` : 
+                    `${indent}* `;
+
+                return prefix + content + (node.nextSibling ? '\n' : '');
+            }
+        });
+
+        // Add specific rule for ordered lists to ensure proper numbering
+        turndownService.addRule('orderedList', {
+            filter: 'ol',
+            replacement: function (content, node) {
+                let items = content.trim().split('\n');
+                return items.map((item, index) => {
+                    return item.replace(/^\*\s/, `${index + 1}. `);
+                }).join('\n') + '\n';
+            }
+        });
+
+        // Function to handle input change
+        function handleInput() {
+            const inputHtml = document.getElementById('rich-text-input').innerHTML;
+            try {
+                const markdown = turndownService.turndown(inputHtml);
+                document.getElementById('markdown-output').value = markdown;
+            } catch (error) {
+                console.error('Conversion error:', error);
+                document.getElementById('markdown-output').value = 'Error converting to markdown. Please try again.';
+            }
+        }
+
+        // Add input event listener
+        document.getElementById('rich-text-input').addEventListener('input', handleInput);
+        
+        // Handle paste to preserve formatting
+        document.getElementById('rich-text-input').addEventListener('paste', function(e) {
+            setTimeout(handleInput, 0);
+        });
+
+        // Function to clear input
+        function clearInput() {
+            document.getElementById('rich-text-input').innerHTML = '';
+            document.getElementById('markdown-output').value = '';
+        }
+
+        // Function to copy markdown
+        async function copyMarkdown() {
+            const markdown = document.getElementById('markdown-output').value;
+            try {
+                await navigator.clipboard.writeText(markdown);
+                animateButton();
+                alert('Markdown copied to clipboard!');
+            } catch (err) {
+                alert('Failed to copy to clipboard. Your browser may not support this feature.');
+            }
+        }
+
+        // Function to handle button animation
+        function animateButton() {
+            const button = document.getElementById('copyButton');
+            button.classList.add('button-clicked');
+            setTimeout(() => {
+                button.classList.remove('button-clicked');
+            }, 500);
+        }
+    </script>
+</body>
+</html>
