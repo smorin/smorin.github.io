@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Steve Morin's collection of free web utilities and tools">
     <title>Steve Morin's Tools - Free Web Utilities</title>
+    <link rel="stylesheet" href="css/all.min.css">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -90,6 +91,37 @@
                 font-size: 2rem;
             }
         }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .repo-link {
+            display: flex !important;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .repo-link i {
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        .tool-link {
+            display: flex !important;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .tool-link i {
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+            width: 1.5rem;  /* This helps align all icons */
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -102,11 +134,73 @@
 
     <main class="container">
         <ul class="tools-list">
-            <li><a href="clipboard-viewer.html">Clipboard Viewer</a></li>
-            <li><a href="markdown-to-richtext.html">Markdown to Rich Text Converter</a></li>
-            <li><a href="richtext-to-markdown.html">Rich Text to Markdown Converter</a></li>
-            <li><a href="wordcount-n-writers-stats.html">Word Count & Writer's Statistics</a></li>
-            <li><a href="markdown-diff.html">Markdown Diff Tool</a></li>
+            <li>
+                <a href="clipboard-viewer.html" class="tool-link">
+                    <i class="far fa-clipboard"></i>
+                    Clipboard Viewer
+                </a>
+            </li>
+            <li>
+                <a href="markdown-to-richtext.html" class="tool-link">
+                    <i class="fas fa-arrow-right"></i>
+                    Markdown to Rich Text Converter
+                </a>
+            </li>
+            <li>
+                <a href="richtext-to-markdown.html" class="tool-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Rich Text to Markdown Converter
+                </a>
+            </li>
+            <li>
+                <a href="wordcount-n-writers-stats.html" class="tool-link">
+                    <i class="fas fa-chart-bar"></i>
+                    Word Count & Writer's Statistics
+                </a>
+            </li>
+            <li>
+                <a href="markdown-diff.html" class="tool-link">
+                    <i class="fas fa-code-compare"></i>
+                    Markdown Diff Tool
+                </a>
+            </li>
+        </ul>
+    </main>
+
+    <main class="container">
+        <ul class="tools-list">
+            <!-- ... existing tools ... -->
+        </ul>
+
+        <h2 class="section-title">
+            <i class="fab fa-github"></i>
+            GitHub Repositories
+        </h2>
+        <ul class="tools-list">
+            <li>
+                <a href="https://github.com/smorin/mac-flutter-setup" class="repo-link">
+                    <i class="fab fa-github"></i>
+                    Mac Flutter Setup: A script to install Flutter on macOS with a Makefile
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/smorin/filegardener" class="repo-link">
+                    <i class="fab fa-github"></i>
+                    File Gardener: A tool to manage files and duplicate files
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/ElixirCommons/ElixirProjectChecklist" class="repo-link">
+                    <i class="fab fa-github"></i>
+                    Elixir Project Checklist: A checklist for Elixir projects
+                </a>
+            </li>
+            <li></li>
+                <a href="https://github.com/smorin/vagrant-flow" class="repo-link">
+                    <i class="fab fa-github"></i>
+                    [Deprecated] Vagrant Flow: A Vagrant Plugin that allows a seamless dev to prod workflow with ansible - allows auto generation ansible inventory files, runs playbooks, hostfiles, and more
+                </a>
+            </li>
         </ul>
     </main>
 
